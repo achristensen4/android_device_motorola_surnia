@@ -184,28 +184,25 @@ service mmi-block-perm /system/bin/sh /init.mmi.block_perm.sh
     oneshot
 
 service batt_health /system/bin/batt_health
-    class late_start
+    class main
     user mot_pwric
     group mot_pwric cache net_admin log
-    disabled
 
 on property:sys.boot_completed=1
    start batt_health
 
 service apanic_annotate /system/bin/sh /system/bin/apanic_annotate.sh build
-    class late_start
+    class main
     group log
     oneshot
 
 service charge_only_mode /system/bin/charge_only_mode
     user root
     group graphics system input
-    disabled
 
 service ftmipcd /system/bin/ftmipcd
     user radio
     group radio net_raw inet qcom_diag
-    disabled
     oneshot
 
 service atvc_core /system/bin/dbvc_atvc_property_set
@@ -215,7 +212,7 @@ service atvc_core /system/bin/dbvc_atvc_property_set
     oneshot
 
 service atvc /system/bin/dbvc_atvc_property_set
-    class late_start
+    class main
     user mot_atvc
     group mot_tpapi
     oneshot
@@ -224,13 +221,11 @@ service qe /xbin/qe /system
     class main
     seclabel u:r:qe:s0
     oneshot
-    disabled
 
 service qe_broadcast /xbin/qe /system -b
     class main
     seclabel u:r:qe:s0
     oneshot
-    disabled
 
 on property:persist.qe.trigger=1
     start qe_broadcast
@@ -240,7 +235,7 @@ on property:sys.boot_completed=1
 
 # Start Sensor daemon
 service stml0xx /system/bin/stml0xx boot
-    class late_start
+    class main
     user compass
     group compass misc input
     oneshot
@@ -257,7 +252,7 @@ on property:tcmd.suspend=1
     stop zygote
     stop sensors
     write /sys/kernel/factory_gsbi12_mode/install 1
-    setprop debug.sf.nobootanimation 1
+    setprop debug.sf.nobootanimation 0
 
 # Normal to suspend
 on property:tcmd.suspend=2
@@ -265,7 +260,7 @@ on property:tcmd.suspend=2
     stop zygote
     stop sensors
     write /sys/kernel/factory_gsbi12_mode/install 1
-    setprop debug.sf.nobootanimation 1
+    setprop debug.sf.nobootanimation 0
 
 on property:persist.sys.diag_mdlog.on=1
     start diag_mdlog
@@ -284,7 +279,6 @@ service diag_mdlog /system/bin/diag_mdlog-wrap
     socket mdlog_cmd stream 0660 log diag
     user log
     group log sdcard_rw sdcard_r media_rw qcom_diag mount
-    disabled
 
 service tcmd /system/bin/tcmd
     class core
@@ -292,13 +286,11 @@ service tcmd /system/bin/tcmd
     socket local_tcmd stream 0660 mot_tcmd mot_tcmd
     socket batch_socket stream 0600 mot_tcmd mot_tcmd
     oneshot
-    disabled
 
 service tcmdhelp /system/bin/tcmdhelp
     class main
     socket tcmdhelp stream 0600 mot_tcmd mot_tcmd
-    oneshot
-    disabled
+    onesho
 
 on property:tcmd.start_tcmdhelp=1
     start tcmdhelp
@@ -314,13 +306,13 @@ on property:persist.log.aplogd.enable=0
 
 service aplogd /system/bin/aplogd
     class main
-    #user log
-    #group log system sdcard_rw sdcard_r media_rw mount
+    user root
+    group log system sdcard_rw sdcard_r media_rw mount
+    
     # The user and group definitions above are intentionally disabled and left
     # only as documentation. It actually starts as root and immediately drops
     # to log plus those groups after preserving CAP_SYS_ADMIN, which is required
     # for kernel logging.
-    disabled
 
 # Let init manage the bug2go-native wakelock, so that we guarantee its
 # lifecycle exactly matches that of bug2go-bugreport.  Since init sends
@@ -337,7 +329,6 @@ on property:init.svc.bugreport=stopped
 
 service bugreport /system/bin/bug2go-bugreport
     class main
-    disabled
     oneshot
     keycodes 115 116 # VOLUME_UP + PWR
 
@@ -347,7 +338,7 @@ service mmi-boot-sh /system/bin/sh /init.mmi.boot.sh
     oneshot
 
 service mmi-touch-sh /system/bin/sh /init.mmi.touch.sh synaptics
-    class late_start
+    class main
     user root
     oneshot
 
@@ -371,24 +362,24 @@ on property:ro.debuggable=1
     chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 
 service hw_revs /system/bin/sh /system/bin/hardware_revisions.sh
-    class late_start
+    class main
     user system
     group system
     oneshot
 
 service mbm_spy /system/bin/mbm_spy
-    class late_start
+    class main
     user system
     group system
     oneshot
 
 service dropboxd /system/bin/dropboxd
-    class late_start
+    class main
     user diag
     group diag
 
 service ss_rdump /system/bin/subsystem_ramdump 1 0
-   class late_start
+   class main
    user radio
    group log sdcard_rw sdcard_r diag
 
@@ -398,7 +389,6 @@ on property:persist.sys.qc.sub.rdump.on=1
 service esdpll /system/bin/esdpll -w
     user mot_esdfs
     group mot_esdfs package_info
-    disabled
 
 on property:ro.esdfs_sdcard=true
     wait /data/media/0 600
@@ -420,11 +410,9 @@ on property:vold.decrypt=trigger_restart_framework
 
 # DHCP service for Ethernet
 service dhcpcd_eth0 /system/bin/dhcpcd -G
-    class late_start
-    disabled
+    class main
     oneshot
 
 service iprenew_eth0 /system/bin/dhcpcd -nBK
-    class late_start
-    disabled
+    class main
     oneshot
